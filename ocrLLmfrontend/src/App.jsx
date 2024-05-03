@@ -92,7 +92,7 @@ function App() {
               <input
                 type="text"
                 placeholder="Type your message from picture here..."
-                className="border border-gray-400 rounded-md p-2 m-4  w-[75%]"
+                className="border border-gray-400 rounded-md p-2 m-4  w-[75%] focus:outline-none"
               />
               <button className="bg-blue-600 text-white font-semibold px-4 py-2 ml-2 rounded-md hover:bg-blue-700">
                 Send
@@ -101,14 +101,14 @@ function App() {
           ) : (
             <div className="bg-gray-800 h-[100%] p-8 rounded-lg shadow-lg">
               <h2 className="text-white mt-4 text-2xl text-center font-extrabold tracking-tight">
-                An OCR you can chat with make life easy hurray 
+                An OCR you can chat with make life easy hurray
               </h2>
               <div className="flex justify-center mt-8 space-x-8">
                 <div className="w-32 h-32 bg-blue-500 rounded-lg flex items-center justify-center text-white">
                   Better life
                 </div>
                 <div className="w-32 h-32 bg-green-500 rounded-lg flex items-center justify-center text-white">
-                  Get insight 
+                  Get insight
                 </div>
                 <div className="w-32 h-32 bg-yellow-500 rounded-lg flex items-center justify-center text-white">
                   How lovely
