@@ -1,9 +1,11 @@
 
+
+
 # pre-installation
 # docker 
 # Cuda
 # nvidia-toolkit 
-#nvidia gpu
+# nvidia gpu
 
 
 # installations 

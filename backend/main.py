@@ -1,4 +1,5 @@
 
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -6,38 +7,34 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import run
+
+from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi.responses import FileResponse
+from typing import List
+import os
+from typing import Optional
+import asyncio
+
 app = FastAPI()
 
+from inference import chatbotInference
 
-from langchain_core.prompts import PromptTemplate
-from langchain.chains import LLMChain
-from langchain.memory import ConversationBufferMemory
+from ocr import OCRProcessor
 
-from trt_inference_api import CustomLLM 
+ocr_processor = OCRProcessor()
 
 
+UPLOAD_DIRECTORY = "uploads"
+# Create the upload directory if it doesn't exist
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
+
+
+
+# instance of chatbot
 token_path = "/home/adebolajo/Desktop/trt-llm/mistral-7b-int4-chat_1.2/mistral7b_hf_tokenizer"
 engine_path = "/home/adebolajo/Desktop/trt-llm/mistral-7b-int4-chat_1.2/trt_engines"
+chatbot = chatbotInference(model_token_path=token_path,model_path=engine_path)
 
-llm = CustomLLM(n=5,tokenizer_dir = token_path, engine_dir = engine_path)
-
-# Notice that "chat_history" is present in the prompt template
-template = """You are a nice chatbot having a conversation with a human.
-
-Previous conversation:
-{chat_history}
-
-New human question: {question}
-Response:"""
-prompt = PromptTemplate.from_template(template)
-# Notice that we need to align the `memory_key`
-memory = ConversationBufferMemory(memory_key="chat_history")
-conversation = LLMChain(
-    llm=llm,
-    prompt=prompt,
-    verbose=True,
-    memory=memory
-)
 
 # Allow CORS for all origins, methods, and headers
 app.add_middleware(
@@ -51,28 +48,51 @@ app.add_middleware(
 class Message(BaseModel):
     content: str
 
+
+
+
 # Mount the static directory to serve static files
-app.mount("/static", StaticFiles(directory="/workspace/chatbot/static"), name="static")
+app.mount("/static", StaticFiles(directory="backend/static"), name="static")
 
 # Create a Jinja2Templates instance for rendering HTML templates
-templates = Jinja2Templates(directory="/workspace/chatbot/templates")
+templates = Jinja2Templates(directory="backend/templates")
 
 @app.get("/",response_class=HTMLResponse)
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
+
+@app.post("/upload")
+async def upload_image(image: UploadFile = File(...)):
+
+
+  file_path = os.path.join(UPLOAD_DIRECTORY, image.filename)
+  # Get image filename (optional)
+
+  # Read image content as bytes
+  contents = await image.read()
+
+  #Save the image locally (optional)
+  with open(file_path, "wb") as f:
+     f.write(contents)
+
+  ocr_string = ocr_processor.process_image(file_path)
+
+  chatbot.createRetriever(ocr_string)
+
+
+  return {"message": f"Image '{image.filename}' uploaded successfully!"}
+
+
 @app.post("/chat")
 async def chat_completion(message: Message):
     # Your logic to generate a response based on the received message
-    response = "This is a sample response."
+    response = "This is a sample response." 
     msg = message.content
-    response = conversation({"question": msg})
-    print( msg, response['text'])
 
-
-    #return {"response": "Sure, I can help you with that. Here's a simple FastAPI code that you can use as a starting point:\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\nasync def read_root():\n    return {\"Hello\": \"World\"}\n```\nThis code creates a FastAPI application and defines a route for the root endpoint. When you run this code, you can access the root endpoint by visiting `http://localhost:8000/` in your web browser.\nIs there anything else you need help with?"}
-    return {"response": response['text']}
+    response = chatbot.rag_chain.invoke(msg) #conversation({"question": msg})
+    return {"response": response}
 
 
 if __name__ == "__main__":

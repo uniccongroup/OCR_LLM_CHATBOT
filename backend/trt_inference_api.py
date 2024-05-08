@@ -21,8 +21,8 @@ if PYTHON_BINDINGS:
 class ModelProcessor:
     def __init__(self,engine_dir,tokenizer_dir):
 
-        self.token_path = "/workspace/mistral-7b-int4-chat_1.2/mistral7b_hf_tokenizer"
-        self.engine_path = "/workspace/mistral-7b-int4-chat_1.2/trt_engines"
+        self.token_path = "/mistral-7b-int4-chat_1.2/mistral7b_hf_tokenizer"
+        self.engine_path = "/mistral-7b-int4-chat_1.2/trt_engines"
         self.max_output_len = 1024
         self.max_attention_window_size = None
         self.sink_token_length = None

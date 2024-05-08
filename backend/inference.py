@@ -7,13 +7,15 @@ from trt_inference_api import CustomLLM
 
 #rag files
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.embeddings import GPT4AllEmbeddings
-from langchain.vectorstores import Chroma
+from langchain_community.vectorstores import Chroma
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
+
+
 
 
 
@@ -44,15 +46,10 @@ class chatbotInference:
         self.prompt = ChatPromptTemplate.from_template(self.template)
 
 
-    def createRetriever(self,file_path):
-
-        text = ""
-        text = file_path
-        """with open(file_path,'r') as file:
-            text = file.read()"""
+    def createRetriever(self,extracted_text):
 
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=10)
-        documents = text_splitter.create_documents([text])
+        documents = text_splitter.create_documents([extracted_text])
 
         # Embed
         vectorstore = Chroma.from_documents(documents=documents, embedding=self.embedding)
