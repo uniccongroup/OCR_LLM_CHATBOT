@@ -1,3 +1,9 @@
 opencv-python-headless==4.9.0.80
 paddleocr==2.7.3
 paddlepaddle==2.6.1
+langchain
+langchain-community
+fastapi
+uvicorn
+chromadb
+sentence-transformers
