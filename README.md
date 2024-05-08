@@ -1,10 +1,6 @@
 # OCR_LLM_CHATBOT-
 This is project is using OCR and LLM
 
-# Project Title
-
-A brief description of what the project does.
-
 # Installation
 
 ## installations requirement  
