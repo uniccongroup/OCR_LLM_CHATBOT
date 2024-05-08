@@ -19,7 +19,7 @@ app = FastAPI()
 
 from inference import chatbotInference
 
-from ocr import OCRProcessor
+from ocr_processor import OCRProcessor
 
 ocr_processor = OCRProcessor()
 
