@@ -7,3 +7,4 @@ fastapi
 uvicorn
 chromadb
 sentence-transformers
+python-multipart

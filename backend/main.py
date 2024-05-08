@@ -62,7 +62,6 @@ async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-
 @app.post("/upload")
 async def upload_image(image: UploadFile = File(...)):
 
