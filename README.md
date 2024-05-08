@@ -36,6 +36,9 @@ $ pip install -r examples/bloom/requirements.txt
 $ git lfs install
 ```
 
+### model download 
+https://drive.google.com/file/d/1S7GjKVmJ93TDljxDg_SR0oFTClQ-sWeH/view?usp=sharing
+
 ### run inferencing 
 ```bash
 $ cd backend

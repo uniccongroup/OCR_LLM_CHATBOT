@@ -31,8 +31,8 @@ os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
 
 # instance of chatbot
-token_path = "/home/adebolajo/Desktop/trt-llm/mistral-7b-int4-chat_1.2/mistral7b_hf_tokenizer"
-engine_path = "/home/adebolajo/Desktop/trt-llm/mistral-7b-int4-chat_1.2/trt_engines"
+token_path = "trt-llm/mistral-7b-int4-chat_1.2/mistral7b_hf_tokenizer"
+engine_path = "trt-llm/mistral-7b-int4-chat_1.2/trt_engines"
 chatbot = chatbotInference(model_token_path=token_path,model_path=engine_path)
 
 
