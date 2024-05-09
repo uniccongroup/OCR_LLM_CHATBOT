@@ -1,9 +1,12 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 function App() {
   const [image, setImage] = useState(null);
   const [showReplaceConfirmation, setShowReplaceConfirmation] = useState(false);
+  const [message, setMessage] = useState("");
   const [showChatInput, setShowChatInput] = useState(false);
+  const [reply, setReply] = useState(null);
 
   const handleImageChange = (event) => {
     const selectedImage = event.target.files[0];
@@ -36,10 +39,57 @@ function App() {
   };
 
   const handleStartChat = () => {
-    // Clear existing image and show chat input
-    setShowChatInput(true);
+    // Clear existing div and show chat input
+    setMessage("");
+    setReply(null)
+    // Convert the image data to a blob
+    const blob = dataURItoBlob(image);
+
+    // Create FormData object to send image
+    const formData = new FormData();
+    formData.append("image", blob, "image.jpg");
+
+    // Make a POST request using Axios
+    axios
+      .post("https://grafana.xenopsai.com/upload", formData)
+      .then((response) => {
+        console.log("Image uploaded successfully:", response);
+        setShowChatInput(true);
+        // Handle response if needed
+      })
+      .catch((error) => {
+        console.error("Error uploading image:", error);
+        // Handle error if needed
+      });
   };
 
+  // Function to convert data URI to Blob
+  const dataURItoBlob = (dataURI) => {
+    const byteString = atob(dataURI.split(",")[1]);
+    const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
+  };
+
+  const handleChat = () => {
+    // Make a POST request using Axios
+    axios
+      .post("https://grafana.xenopsai.com/chat", { content: message })
+      .then((response) => {
+        setReply(response.data.response);
+        setMessage("");
+        console.log(response.data.response);
+        // Handle response if needed
+      })
+      .catch((error) => {
+        console.error("Error sending", error);
+        // Handle error if needed
+      });
+  };
 
   return (
     <div className="flex items-center justify-center h-screen bg-blue-500">
@@ -88,16 +138,31 @@ function App() {
         </div>
         <div className="bg-gradient-to-br from-gray-700 to-gray-600 w-[60%] rounded-lg m-4">
           {showChatInput ? (
-            <div>
-              <input
-                type="text"
-                placeholder="Type your message from picture here..."
-                className="border border-gray-400 rounded-md p-2 m-4  w-[75%] focus:outline-none"
-              />
-              <button className="bg-blue-600 text-white font-semibold px-4 py-2 ml-2 rounded-md hover:bg-blue-700">
-                Send
-              </button>
-            </div>
+            <>
+              {reply && (
+                <div className="flex justify-start">
+                  <div className="bg-blue-500 p-2 m-2 rounded-lg">
+                    <p class=" text-white">{reply}</p>
+                  </div>
+                </div>
+              )}
+
+              <div class="">
+                <input
+                  type="text"
+                  placeholder="Type your message from picture here..."
+                  className="border border-gray-400 rounded-md p-2 m-4  w-[75%] focus:outline-none"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                />
+                <button
+                  className="bg-blue-600 text-white font-semibold px-4 py-2 ml-2 rounded-md hover:bg-blue-700"
+                  onClick={handleChat}
+                >
+                  Send
+                </button>
+              </div>
+            </>
           ) : (
             <div className="bg-gray-800 h-[100%] p-8 rounded-lg shadow-lg">
               <h2 className="text-white mt-4 text-2xl text-center font-extrabold tracking-tight">
